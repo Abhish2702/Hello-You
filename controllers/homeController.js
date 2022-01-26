@@ -43,3 +43,43 @@ module.exports.Create=function(req,res){
        }) 
     
 }
+module.exports.CreateSession=function(req,res){
+    User.findOne({email:req.body.email},function(err,user){
+        if(err){
+            console.log("Error in signing in",err);
+            return;
+        }
+        if(user){
+            if(user.password!=req.body.password){
+                return res.redirect('back');
+            }
+            res.cookie('user_id',user.id);
+            return res.redirect('/profile');
+        }
+        else{
+            return res.redirect('back');
+        }
+    })
+}
+module.exports.profile=function(req,res){
+    if(req.cookies.user_id){
+    User.findById(req.cookies.user_id,function(err,user){
+        if(err){
+            console.log('Error in finding user',err);
+            return;
+        }
+        if(user){
+            return res.render('profile',{
+                title:profile,
+                user:user
+            })
+        }
+        else{
+            return res.redirect('/sign-in');
+        }
+    })
+}
+else{
+    return res.redirect('/sign-in');
+}
+}
